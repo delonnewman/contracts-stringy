@@ -1,3 +1,6 @@
+require 'contracts/gen'
+require 'gen/test'
+
 # Some contracts to deal with string values that can be coerced appropriately by ActiveRecord
 module Contracts
   module Stringy
@@ -85,7 +88,8 @@ module Contracts
         ->() { Faker::FunnyName.name },
         ->() { Faker::Superhero.name },
         ->() { Faker::Movies::StarWars.character },
-        ->() { Faker::Artist.name }
+        ->() { Faker::Artist.name },
+        ->() { /[A-Z][a-z]{2,7} [A-Z][a-z]{2,7}/.generate },
       ].freeze
 
       # TODO: refine this
@@ -93,7 +97,7 @@ module Contracts
         value.is_a? String
       end
 
-      def self.generate(*_args)
+      def self.generate
         GENERATORS.sample.call
       end
     end
