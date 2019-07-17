@@ -1,6 +1,3 @@
-require "contracts/stringy/version"
-require "contracts"
-
 # Some contracts to deal with string values that can be coerced appropriately by ActiveRecord
 module Contracts
   module Stringy
@@ -16,11 +13,19 @@ module Contracts
       def self.valid?(value)
         value.is_a? String and (value =~ INTEGER_REGEX) != nil
       end
+
+      def self.generate(*args)
+        Contracts::Builtin::Int.generate(*args).to_s
+      end
     end
 
     class Float
       def self.valid?(value)
         value.is_a? String and (value =~ FLOAT_REGEX) != nil
+      end
+
+      def self.generate(*args)
+        ::Float.generate(*args).to_s
       end
     end
 
@@ -30,12 +35,24 @@ module Contracts
       def self.valid?(value)
         value.is_a? String and (value =~ POS_REGEX) != nil
       end
+
+      def self.generate(*args)
+        Contracts::Builtin::Pos.generate(*args).to_s
+      end
     end
 
     # A string that is equal to either 'true', 'false', '0', or '1'.
     class Bool
       def self.valid?(value)
         value.is_a? String and value == 'true' or value == 'false' or value == "0" or value == "1"
+      end
+
+      def self.generate(*args)
+        if Contracts::Builtin::Bool.generate
+          Contracts::Builtin::Bool.generate(*args) ? 'true' : '1'
+        else
+          Contracts::Builtin::Bool.generate(*args) ? 'false' : '0'
+        end
       end
     end
 
@@ -45,6 +62,10 @@ module Contracts
       def self.valid?(value)
         value.is_a? String and (value =~ UUID_REGEX) != nil
       end
+
+      def self.generate(*_args)
+        SecureRandom.uuid
+      end
     end
 
     # A url safe string
@@ -53,12 +74,27 @@ module Contracts
       def self.valid?(value)
         value.is_a? String and (value =~ URLSAFE_REGEX) != nil
       end
+
+      def self.generate(*_args)
+        URLSAFE_REGEX.generate
+      end
     end
 
     class Name
+      GENERATORS = [
+        ->() { Faker::FunnyName.name },
+        ->() { Faker::Superhero.name },
+        ->() { Faker::Movies::StarWars.character },
+        ->() { Faker::Artist.name }
+      ].freeze
+
       # TODO: refine this
       def self.valid?(value)
         value.is_a? String
+      end
+
+      def self.generate(*_args)
+        GENERATORS.sample.call
       end
     end
   end
