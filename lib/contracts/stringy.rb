@@ -84,21 +84,13 @@ module Contracts
     end
 
     class Name
-      GENERATORS = [
-        ->() { Faker::FunnyName.name },
-        ->() { Faker::Superhero.name },
-        ->() { Faker::Movies::StarWars.character },
-        ->() { Faker::Artist.name },
-        ->() { /[A-Z][a-z]{2,7} [A-Z][a-z]{2,7}/.generate },
-      ].freeze
-
       # TODO: refine this
       def self.valid?(value)
         value.is_a? String
       end
 
       def self.generate
-        GENERATORS.sample.call
+        Faker::Name.unique.name
       end
     end
   end
